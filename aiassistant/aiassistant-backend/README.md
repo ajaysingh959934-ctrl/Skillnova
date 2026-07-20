@@ -120,3 +120,23 @@ Body of the document goes here …
 ```
 
 The next service start will re-index the knowledge base automatically.
+
+## Example `.env`
+
+Copy the provided example file and populate at least one LLM provider key.
+
+```bash
+cp .env.example .env
+# Edit `.env` and set either `GROQ_API_KEY` or `GEMINI_API_KEY` (or both)
+# Do NOT commit `.env` with real keys.
+```
+
+Example variables contained in `.env.example`:
+
+```
+GROQ_API_KEY=
+GEMINI_API_KEY=
+AIASSISTANT_HOST=0.0.0.0
+AIASSISTANT_PORT=8000
+REDIS_URL=
+```
