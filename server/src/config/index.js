@@ -10,6 +10,8 @@ const required = [
   "CSRF_SECRET",
   ...(isProd ? ["FILE_SIGN_SECRET"] : []),
 ];
+const required = ['DATABASE_URL', 'JWT_ACCESS_SECRET', 'JWT_REFRESH_SECRET', 'JWT_SECRET', 'CSRF_SECRET'];
+const isProd = process.env.NODE_ENV === 'production';
 const missing = required.filter((k) => !process.env[k]);
 
 if (missing.length) {
@@ -24,6 +26,7 @@ if (missing.length) {
     console.error(
       "Generate secrets with: node -e \"console.log(require('crypto').randomBytes(48).toString('base64url'))\"\n",
     );
+    console.error(`[config] Missing required env var(s): ${missing.join(', ')}`);
     process.exit(1);
   }
   // Dev / test: warn loudly and substitute placeholders so unit tests can
@@ -107,6 +110,10 @@ export const config = {
       : "7d",
     otpTtl: process.env.OTP_TTL || "10m",
     twoFaTtl: process.env.TWOFA_TTL || "10m",
+    accessTtl: process.env.ACCESS_TOKEN_TTL || '15m',
+    refreshTtl: process.env.REFRESH_TOKEN_TTL || '7d',
+    otpTtl: process.env.OTP_TTL || '10m',
+    twoFaTtl: process.env.TWOFA_TTL || '10m',
   },
 
   csrf: {
@@ -168,6 +175,8 @@ export const config = {
 
   logLevel: process.env.LOG_LEVEL || "info",
   isProd: process.env.NODE_ENV === "production",
+  logLevel: process.env.LOG_LEVEL || 'info',
+  isProd: process.env.NODE_ENV === 'production',
 };
 
 export default config;

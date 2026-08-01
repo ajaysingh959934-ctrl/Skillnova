@@ -6,6 +6,11 @@ import prisma from "../utils/prisma.js";
 import { ApiError } from "../utils/ApiError.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { audit } from "../services/audit.service.js";
+import { z } from 'zod';
+import prisma from '../utils/prisma.js';
+import { ApiError } from '../utils/ApiError.js';
+import { asyncHandler } from '../utils/asyncHandler.js';
+import { audit } from '../services/audit.service.js';
 
 const _markSchema = z.object({
   userId: z.string().cuid(),
@@ -98,6 +103,7 @@ export const mark = asyncHandler(async (req, res) => {
     meta: { userId, status },
     req,
   });
+  await audit({ userId: req.user.id, action: 'attendance.mark', resource: 'attendance', resourceId: record.id, meta: { userId, status }, req });
   res.json({ attendance: record });
 });
 
@@ -120,9 +126,6 @@ export const checkInOut = asyncHandler(async (req, res) => {
       checkIn: now,
     },
   });
-  if (['PRESENT', 'LATE', 'HALF_DAY'].includes(status)) {
-    await recordActivity(req.user.id);
-  }
   res.json({ attendance: record });
 });
 
@@ -147,11 +150,10 @@ export const summary = asyncHandler(async (req, res) => {
     prisma.attendance.count({
       where: { ...where, date: { gte: start }, status: "LEAVE" },
     }),
+    prisma.attendance.count({ where: { ...where, date: { gte: start }, status: 'PRESENT' } }),
+    prisma.attendance.count({ where: { ...where, date: { gte: start }, status: 'ABSENT' } }),
+    prisma.attendance.count({ where: { ...where, date: { gte: start }, status: 'LEAVE' } }),
     prisma.attendance.count({ where: { ...where, date: { gte: start } } }),
-    prisma.attendance.findUnique({
-      where: { userId_date: { userId: targetUserId, date: today } },
-      select: { status: true },
-    }),
   ]);
   res.json({
     present,
@@ -310,6 +312,7 @@ export const requestLeave = asyncHandler(async (req, res) => {
   });
 
   res.json({ marked: records.length, records });
+  res.json({ present, absent, leave, total, rate: total ? Math.round(((present + leave) / total) * 100) : 0 });
 });
 
 export default { list, mark, checkInOut, summary, streak, requestLeave };

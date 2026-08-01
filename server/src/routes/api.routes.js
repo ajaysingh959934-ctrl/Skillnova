@@ -14,6 +14,18 @@ import * as notif from "../controllers/notifications.controller.js";
 import { authenticate, requireAuth } from "../middleware/auth.js";
 import { requirePermission } from "../middleware/rbac.js";
 import { validate, schemas } from "../middleware/validate.js";
+import { Router } from 'express';
+import { z } from 'zod';
+import * as reports from '../controllers/reports.controller.js';
+import * as announcements from '../controllers/announcements.controller.js';
+import * as qa from '../controllers/qa.controller.js';
+import * as attendance from '../controllers/attendance.controller.js';
+import * as projects from '../controllers/projects.controller.js';
+import * as ai from '../controllers/ai.controller.js';
+import * as notif from '../controllers/notifications.controller.js';
+import { authenticate, requireAuth } from '../middleware/auth.js';
+import { requirePermission } from '../middleware/rbac.js';
+import { validate, schemas } from '../middleware/validate.js';
 
 const api = Router();
 api.use(authenticate, requireAuth);
@@ -21,8 +33,7 @@ api.use(authenticate, requireAuth);
 const internIdParam = z.object({ internId: z.string().cuid() });
 const idParam = z.object({ id: z.string().cuid() });
 
-
-// ?? Reports ???????????????????????????????????????????????
+// ── Reports ───────────────────────────────────────────────
 api.get(
   "/reports",
   requirePermission("reports:read"),
@@ -36,6 +47,13 @@ api.get(
   validate(idParam, "params"),
   reports.getById,
 );
+  '/reports',
+  requirePermission('reports:read'),
+  validate(schemas.pagination, 'query'),
+  reports.list
+);
+api.get('/reports/stats', requirePermission('reports:read'), reports.stats);
+api.get('/reports/:id', requirePermission('reports:read'), validate(idParam, 'params'), reports.getById);
 api.post(
   "/reports",
   requirePermission("reports:create"),
@@ -46,6 +64,7 @@ api.post(
       fileUrl: z.string().url().optional(),
       weekNumber: z.number().int().min(1).max(104).optional(),
     }),
+    })
   ),
   reports.create,
 );
@@ -63,7 +82,6 @@ api.patch(
   ),
   reports.update,
 );
-api.post('/reports/:id/submit', requirePermission('reports:create'), validate(idParam, 'params'), reports.submit);
 api.patch(
   "/reports/:id/review",
   requirePermission("reports:review"),
@@ -71,6 +89,7 @@ api.patch(
   validate(
     z.object({
       status: z.enum(["PENDING", "REVIEWED", "REJECTED"]).default("REVIEWED"),
+      status: z.enum(['PENDING', 'REVIEWED', 'REJECTED']).default('REVIEWED'),
       score: z.number().min(0).max(10).optional(),
       feedback: z.string().max(2000).optional(),
     }),
@@ -411,5 +430,7 @@ api.get(
   validate(internIdParam, "params"),
   ratings.listRatings,
 );
+api.get('/analytics/platform', requirePermission('users:read'), notif.platformStats);
+api.get('/analytics/interns', requirePermission('users:read'), notif.internPerformance);
 
 export default api;

@@ -16,11 +16,9 @@ import {
   verifyAccessToken,
   verifyRefreshToken,
   hashToken,
-  hashPassword,
   generateOtp,
   verifyTotp,
   signCsrf,
-  randomToken,
   COOKIE_NAMES,
 } from "../utils/auth.js";
 import { config } from "../config/index.js";
@@ -49,6 +47,15 @@ function generateInviteCode() {
   }
   return code; // e.g. "K3F9-7GQX"
 }
+} from '../utils/auth.js';
+import { config } from '../config/index.js';
+import { memoryStore } from '../utils/redis.js';
+import { sendEmail } from '../services/email.services.js';
+import { getClientIp, getUserAgent } from '../middleware/auth.js';
+import { audit } from '../services/audit.service.js';
+import { logger } from '../utils/logger.js';
+import { notify } from '../services/notification.service.js';
+
 // ── Cookie options ───────────────────────────────────────
 const REFRESH_COOKIE_OPTS = {
   httpOnly: true,
@@ -57,6 +64,8 @@ const REFRESH_COOKIE_OPTS = {
   path: "/api/v1/auth",
   maxAge: config.security.refreshCookieMaxAge,
   domain: config.isProd ? undefined : "localhost",
+  path: '/api/v1/auth',
+  maxAge: 7 * 24 * 60 * 60 * 1000,
 };
 
 const ACCESS_COOKIE_OPTS = {
@@ -66,6 +75,8 @@ const ACCESS_COOKIE_OPTS = {
   path: "/",
   maxAge: config.security.accessCookieMaxAge,
   domain: config.isProd ? undefined : "localhost",
+  path: '/',
+  maxAge: 15 * 60 * 1000,
 };
 
 const CSRF_COOKIE_OPTS = {
@@ -75,11 +86,12 @@ const CSRF_COOKIE_OPTS = {
   path: "/",
   maxAge: config.security.csrfCookieMaxAge,
   domain: config.isProd ? undefined : "localhost",
+  path: '/',
+  maxAge: 24 * 60 * 60 * 1000,
 };
 
 const MAX_FAILED = 5;
 const LOCK_MS = 15 * 60 * 1000;
-const RESET_TOKEN_TTL_MS = 30 * 60 * 1000;
 
 // ── Helpers ──────────────────────────────────────────────
 function issueTokens(res, user, req, { rememberMe = true } = {}) {
@@ -96,7 +108,7 @@ function issueTokens(res, user, req, { rememberMe = true } = {}) {
         device: req.headers?.["x-device-id"] ?? null,
         ip: getClientIp(req),
         userAgent: getUserAgent(req).slice(0, 250),
-        expiresAt: new Date(Date.now() + config.security.refreshCookieMaxAge),
+        expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
       },
     })
     .catch((err) => logger.warn({ err }, "auth:refreshToken-save-failed"));
@@ -120,6 +132,7 @@ function issueTokens(res, user, req, { rememberMe = true } = {}) {
     { uid: user.id, role: user.role },
     config.security.refreshCookieMaxAge / 1000,
   );
+  memoryStore.set(`session:${sessionId}`, { uid: user.id, role: user.role }, 7 * 24 * 60 * 60);
   return { accessToken, refreshToken, sessionId };
 }
 
@@ -136,94 +149,9 @@ function issuePendingSession(res, user) {
     { uid: user.id, role: user.role, pending: true },
     config.security.pendingSessionTtlSeconds,
   );
+  memoryStore.set(`session:${sessionId}`, { uid: user.id, role: user.role, pending: true }, 15 * 60);
   return sessionId;
 }
-
-export const register = asyncHandler(async (req, res) => {
-  const { name, email, password, role } = req.body;
-  const normalizedEmail = email.toLowerCase();
-
-  const existing = await prisma.user.findUnique({ where: { email: normalizedEmail } });
-  if (existing) throw ApiError.conflict('Email is already registered');
-
-  const user = await prisma.user.create({
-    data: {
-      name,
-      email: normalizedEmail,
-      passwordHash: hashPassword(password),
-      role,
-      status: 'ACTIVE',
-    },
-  });
-
-  await audit({ userId: user.id, action: 'auth.register', resource: 'user', resourceId: user.id, req });
-  res.status(201).json({ user: sanitize(user), message: 'Account created successfully' });
-});
-
-export const forgotPassword = asyncHandler(async (req, res) => {
-  const { email } = req.body;
-  const normalizedEmail = email.toLowerCase();
-  const user = await prisma.user.findUnique({ where: { email: normalizedEmail } });
-
-  if (!user) throw ApiError.notFound('No account found for this email');
-
-  const token = randomToken(32);
-  await prisma.passwordResetToken.updateMany({
-    where: { userId: user.id, usedAt: null },
-    data: { usedAt: new Date() },
-  });
-  await prisma.passwordResetToken.create({
-    data: {
-      userId: user.id,
-      tokenHash: hashToken(token),
-      expiresAt: new Date(Date.now() + RESET_TOKEN_TTL_MS),
-    },
-  });
-
-  const resetUrl = `${req.headers.origin || config.corsOrigin[0] || 'http://localhost:5173'}/reset-password?token=${token}`;
-  logger.info({ email: user.email, resetUrl }, 'auth:password-reset-link');
-  await audit({ userId: user.id, action: 'auth.password_reset.requested', req });
-
-  res.json({
-    message: 'Password reset link generated. Check the server console in development.',
-    resetToken: config.isProd ? undefined : token,
-    resetUrl: config.isProd ? undefined : resetUrl,
-  });
-});
-
-export const resetPassword = asyncHandler(async (req, res) => {
-  const { token, password } = req.body;
-  const resetToken = await prisma.passwordResetToken.findUnique({
-    where: { tokenHash: hashToken(token) },
-    include: { user: true },
-  });
-
-  if (!resetToken || resetToken.usedAt || resetToken.expiresAt <= new Date()) {
-    throw ApiError.unauthorized('Invalid or expired reset token');
-  }
-
-  await prisma.$transaction([
-    prisma.user.update({
-      where: { id: resetToken.userId },
-      data: {
-        passwordHash: hashPassword(password),
-        failedAttempts: 0,
-        lockedUntil: null,
-      },
-    }),
-    prisma.passwordResetToken.update({
-      where: { id: resetToken.id },
-      data: { usedAt: new Date() },
-    }),
-    prisma.refreshToken.updateMany({
-      where: { userId: resetToken.userId, revokedAt: null },
-      data: { revokedAt: new Date() },
-    }),
-  ]);
-
-  await audit({ userId: resetToken.userId, action: 'auth.password_reset.completed', req });
-  res.json({ message: 'Password has been reset successfully' });
-});
 
 // ── POST /auth/login ─────────────────────────────────────
 export const login = asyncHandler(async (req, res) => {
@@ -242,6 +170,8 @@ export const login = asyncHandler(async (req, res) => {
   if (user.status === "SUSPENDED")
     throw ApiError.forbidden("Account suspended");
   if (user.status === "INACTIVE") throw ApiError.forbidden("Account inactive");
+  if (user.status === 'SUSPENDED') throw ApiError.forbidden('Account suspended');
+  if (user.status === 'INACTIVE') throw ApiError.forbidden('Account inactive');
 
   const ok = verifyPassword(password, user.passwordHash);
   if (!ok) {
@@ -250,6 +180,7 @@ export const login = asyncHandler(async (req, res) => {
       failed >= config.security.maxFailedAttempts
         ? new Date(Date.now() + config.security.lockDurationMs)
         : null;
+    const lockedUntil = failed >= MAX_FAILED ? new Date(Date.now() + LOCK_MS) : null;
     await prisma.user.update({
       where: { id: user.id },
       data: { failedAttempts: failed, lockedUntil },
@@ -293,6 +224,9 @@ export const login = asyncHandler(async (req, res) => {
             : "login_2fa",
         codeHash: await bcrypt.hash(code, config.security.otpHashRounds),
         expiresAt: new Date(Date.now() + parseDurationToMs(config.jwt.otpTtl)),
+        purpose: user.role === 'SUPER_ADMIN' || user.role === 'ADMIN' ? 'login_admin' : 'login_2fa',
+        codeHash: await bcrypt.hash(code, 8),
+        expiresAt: new Date(Date.now() + 10 * 60 * 1000),
       },
     });
 
@@ -556,9 +490,6 @@ export const signupVerify = asyncHandler(async (req, res) => {
 });
 
 // ── POST /auth/refresh ───────────────────────────────────
-const recentlyRefreshed = new Set();
-const REFRESH_DEDUP_TTL = 5000;
-
 export const refresh = asyncHandler(async (req, res) => {
   const token = req.cookies?.[COOKIE_NAMES.refresh] ?? req.body.refreshToken;
   if (!token) throw ApiError.unauthorized("No refresh token");
@@ -575,6 +506,7 @@ export const refresh = asyncHandler(async (req, res) => {
     throw ApiError.unauthorized("Invalid refresh token");
   }
 
+  const tokenHash = hashToken(token);
   const stored = await prisma.refreshToken.findUnique({ where: { tokenHash } });
   if (!stored || stored.revokedAt || stored.expiresAt < new Date()) {
     throw ApiError.unauthorized("Refresh token revoked or expired");
@@ -594,6 +526,7 @@ export const refresh = asyncHandler(async (req, res) => {
   recentlyRefreshed.add(tokenHash);
   setTimeout(() => recentlyRefreshed.delete(tokenHash), REFRESH_DEDUP_TTL);
   await audit({ userId: user.id, action: "auth.refresh", req });
+  await audit({ userId: user.id, action: 'auth.refresh', req });
 
   res.json({ user: sanitize(user), accessToken, refreshToken: newRefresh });
 });
@@ -765,4 +698,66 @@ export const setInternAsTeamLead = asyncHandler(async (req, res) => {
     message: `${user.name} is now ${isTL ? "a" : "not a"} Team Lead`,
     internProfile: updated,
   });
+// @desc    Forgot Password - sends email
+// @route   POST /api/auth/forgot-password
+export const forgotPassword = asyncHandler(async (req, res) => {
+  const { email } = req.body;
+  if (!email) throw ApiError.badRequest('Email is required');
+
+  const user = await prisma.user.findUnique({ where: { email } });
+  if (!user) throw ApiError.notFound('User not found');
+
+  // 1. Generate token
+  const resetToken = crypto.randomBytes(32).toString('hex');
+  const hashedToken = crypto.createHash('sha256').update(resetToken).digest('hex');
+
+  // 2. Save to DB with 15 min expiry
+  await prisma.user.update({
+    where: { id: user.id },
+    data: { 
+      resetPasswordToken: hashedToken,
+      resetPasswordExpire: new Date(Date.now() + 15 * 60 * 1000)
+    }
+  });
+
+  // 3. Send email
+  const resetLink = `${config.frontendUrl}/reset-password?token=${resetToken}`;
+  const html = `
+    <h2>Reset Your SkillNova Password</h2>
+    <p>Hi ${user.name},</p>
+    <a href="${resetLink}">Click here to reset</a>
+    <p>This link expires in 15 minutes</p>
+  `;
+  await sendEmail(user.email, "Reset Your SkillNova Password", html);
+
+  res.json({ message: 'Password reset email sent' });
+});
+
+// @desc    Reset Password with token
+// @route   POST /api/auth/reset-password/:token
+export const resetPassword = asyncHandler(async (req, res) => {
+  const { token } = req.params;
+  const { password } = req.body;
+
+  const hashedToken = crypto.createHash('sha256').update(token).digest('hex');
+  const user = await prisma.user.findFirst({
+    where: { 
+      resetPasswordToken: hashedToken,
+      resetPasswordExpire: { gt: new Date() }
+    }
+  });
+
+  if (!user) throw ApiError.badRequest('Invalid or expired token');
+
+  const hashedPassword = await bcrypt.hash(password, 10);
+  await prisma.user.update({
+    where: { id: user.id },
+    data: { 
+      passwordHash: hashedPassword,
+      resetPasswordToken: null,
+      resetPasswordExpire: null
+    }
+  });
+
+  res.json({ message: 'Password reset successful' });
 });

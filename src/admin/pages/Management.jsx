@@ -33,6 +33,7 @@ const Management = () => {
     department: "",
     role: "INTERN",
   });
+  const [form, setForm] = useState({ name: '', email: '', password: 'User#2026', department: '', role: 'INTERN' });
 
   const fetch = async () => {
     setLoading(true);
@@ -61,6 +62,7 @@ const Management = () => {
 
     if (!window.confirm(`Add intern "${form.name}"?`)) return;
 
+    if (!form.name || !form.email) return notify.error('Fill required fields.');
     try {
       await api.post("/users", {
         ...form,
@@ -79,6 +81,7 @@ const Management = () => {
         role: "INTERN",
       });
 
+      setForm({ name: '', email: '', password: 'User#2026', department: '', role: 'INTERN' });
       fetch();
     } catch (err) {
       notify.error(err.response?.data?.error || "Failed.");
@@ -450,6 +453,12 @@ const Management = () => {
               </button>
             </div>
           )}
+        }>
+        <div className="space-y-4">
+          <Input label="Full name" placeholder="e.g. Rahul Sharma" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
+          <Input label="Email" type="email" placeholder="rahul@skillnova.com" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} />
+          <Input label="Department" placeholder="e.g. AI / ML" value={form.department} onChange={(e) => setForm({ ...form, department: e.target.value })} />
+          <Input label="Initial password" type="password" value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} />
         </div>
       </Modal>
     </div>

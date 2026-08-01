@@ -27,6 +27,27 @@ import { requestId } from "./middleware/requestId.js";
 import { bodySizeTracker } from "./utils/metrics.js";
 import fs from "node:fs";
 import { UPLOAD_DIR_PATH } from "./utils/upload.js";
+import express from 'express';
+import cors from 'cors';
+import helmet from 'helmet';
+import compression from 'compression';
+import cookieParser from 'cookie-parser';
+import morgan from 'morgan';
+import rateLimit from 'express-rate-limit';
+import { config } from './config/index.js';
+import { logger } from './utils/logger.js';
+import { ApiError } from './utils/ApiError.js';
+import prisma from './utils/prisma.js';
+import { redis } from './utils/redis.js';
+import { authenticate, csrfProtection } from './middleware/auth.js';
+import authRoutes from './routes/auth.routes.js';
+import userRoutes from './routes/users.routes.js';
+import apiRoutes from './routes/api.routes.js';
+import kbRoutes from './routes/kb.routes.js';
+import featuresRoutes, { publicApi as publicFeaturesRoutes } from './routes/features.routes.js';
+import { etagMiddleware } from './utils/cache.js';
+import { requestId } from './middleware/requestId.js';
+import resumeImportRoutes from './resume-import/resumeImport.routes.js';
 
 const app = express();
 
@@ -63,6 +84,7 @@ app.use(
     },
   }),
 );
+app.use(compression());
 
 // CORS — explicit allow-list
 app.use(
@@ -77,13 +99,17 @@ app.use(
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     maxAge: 86400,
   }),
+      cb(new Error('CORS: origin not allowed'));
+    },
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  })
 );
 
 // Body parsers
 app.use(express.json({ limit: "1mb" }));
 app.use(express.urlencoded({ extended: true, limit: "1mb" }));
 app.use(cookieParser());
-app.use(bodySizeTracker());
 
 // Logging
 if (!config.isProd) app.use(morgan("dev"));
@@ -151,6 +177,12 @@ app.get("/healthz/ready", async (_req, res) => {
   } catch {
     /* leave false */
   }
+app.get('/healthz/ready', async (_req, res) => {
+  const checks = { db: false, redis: false };
+  try {
+    await prisma.$queryRaw`SELECT 1`;
+    checks.db = true;
+  } catch { /* leave false */ }
   try {
     const pong = await redis.ping();
     if (pong) checks.redis = true;
@@ -199,6 +231,11 @@ app.use("/api/v1/users", userRoutes);
 app.use("/api/v1/kb", kbRoutes);
 app.use("/api/v1/skill-gap", skillGapRoutes);
 app.use("/api/v1", csrfProtection, apiRoutes);
+app.use('/api/v1', featuresRoutes);
+app.use('/api/v1/users', userRoutes);
+app.use('/api/v1/kb', kbRoutes);
+app.use('/api/v1/resume-import', resumeImportRoutes);
+app.use('/api/v1', csrfProtection, apiRoutes);
 
 // ── 404 ────────────────────────────────────────────────────
 app.use((req, _res, next) => {
@@ -217,7 +254,6 @@ app.use((err, req, res, _next) => {
       details: err.details,
     });
   }
-  app.use('/api/flags', flagRoutes);
 
   // CORS error from upstream
   if (err.message?.startsWith("CORS")) {
@@ -240,6 +276,8 @@ app.use((err, req, res, _next) => {
     error: "Internal server error",
     requestId: req.headers["x-request-id"] ?? undefined,
     timestamp: new Date().toISOString(),
+    error: 'Internal server error',
+    requestId: req.headers['x-request-id'] ?? undefined,
   });
 });
 
