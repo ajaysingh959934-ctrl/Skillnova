@@ -12,7 +12,6 @@ import { useAuthStore } from '../../lib/auth';
 
 const MENU = [
   { id: 'dashboard',      label: 'Dashboard',      icon: LayoutDashboard },
-  { id: 'leaderboard',    label: 'Leaderboard',    icon: Trophy          },
   { id: 'knowledge',      label: 'Knowledge Base', icon: BookOpen        },
   { id: 'project_flow',   label: 'Project Flow',   icon: Activity        },
   { id: 'kanban',         label: 'Task Board',     icon: LayoutGrid      },

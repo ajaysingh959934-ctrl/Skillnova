@@ -1,8 +1,11 @@
+// ════════════════════════════════════════════════════════════
 // ----------------------------------------------------------------
 //  App.jsx — Root component
 //  Hydrates auth, mounts the right app (admin/mentor/intern)
 //  based on the authenticated user's role. Mounts the global
 //  AIAssistant widget so every logged-in user has access.
+// ════════════════════════════════════════════════════════════
+import { useEffect } from 'react';
 // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 import { useEffect } from 'react';
 // ----------------------------------------------------------------
@@ -27,9 +30,12 @@ const App = () => {
 
   useEffect(() => {
     if (user?.id && step === 'authenticated') {
-      connectSocket(accessToken);
-      return;
+      connectSocket(useAuthStore.getState().accessToken);
     }
+    return () => {
+      if (step !== 'authenticated') disconnectSocket();
+    };
+  }, [user, step]);
 
   if (!hydrated) return <LoaderScreen label="Initialising SkillNovaâ€¦" />;
     disconnectSocket();
@@ -45,14 +51,6 @@ const App = () => {
 
   return (
     <>
-      {!online && (
-        <div
-          className="fixed top-0 left-0 right-0 z-[100] px-4 py-2 text-center text-sm font-medium text-white"
-          style={{ background: '#dc2626' }}
-        >
-          ?? You are offline. Some features may be unavailable.
-        </div>
-      )}
       {user.role === 'SUPER_ADMIN' || user.role === 'ADMIN' ? (
         <AdminApp />
       ) : user.role === 'MENTOR' ? (

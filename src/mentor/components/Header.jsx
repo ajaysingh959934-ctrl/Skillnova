@@ -6,8 +6,6 @@ import { Bell, Search, Sun, Moon, Menu } from 'lucide-react';
 import { useAuthStore } from '../../lib/auth';
 import { useNotifications } from '../../shared/hooks/useNotifications';
 import { initials } from '../../lib/utils';
-import { APP_CONSTANTS } from '../../shared/config/constants';
-import { getRoleLabel } from '../../shared/config/roleLabels';
 
 const Header = ({ title, onMenuToggle }) => {
   const { user } = useAuthStore();
@@ -79,7 +77,7 @@ const Header = ({ title, onMenuToggle }) => {
         </div>
         <div className="hidden md:block">
           <p className="text-xs font-semibold leading-none" style={{ color: 'var(--text)' }}>{user?.name}</p>
-          <p className="text-xs mt-0.5 font-medium" style={{ color: '#7C3AED' }}>{getRoleLabel(user?.role)}</p>
+          <p className="text-xs mt-0.5 font-medium" style={{ color: '#7C3AED' }}>Mentor</p>
         </div>
       </div>
     </header>

@@ -1,6 +1,6 @@
-﻿// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-//  SHARED â€” UI.jsx  (UptoSkills Branded)
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ══════════════════════════════════════════════
+//  SHARED — UI.jsx  (UptoSkills Branded)
+// ══════════════════════════════════════════════
 
 import { motion, AnimatePresence } from "framer-motion";
 import { TrendingUp, X, CheckSquare } from "lucide-react";
@@ -55,7 +55,7 @@ export const Badge = ({ children, variant = "default" }) => {
   );
 };
 
-/* â”€â”€ Card â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ── Card ────────────────────────────────────── */
 export const Card = ({ children, className = "", hover = false, onClick, delay = 0 }) => (
   <MotionDiv
     initial={{ opacity: 0, y: 20 }}
@@ -75,7 +75,7 @@ export const Card = ({ children, className = "", hover = false, onClick, delay =
   </MotionDiv>
 );
 
-/* â”€â”€ StatCard (Enhanced) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ── StatCard (Enhanced) ─────────────────────── */
 export const StatCard = ({ title, value, icon: _Icon, trend, color = "#ff6d34", subtitle, delay = 0 }) => (
   <Card hover className="p-6 transition-all duration-300" delay={delay}>
     <div className="flex items-center justify-between">
@@ -90,7 +90,7 @@ export const StatCard = ({ title, value, icon: _Icon, trend, color = "#ff6d34", 
         <_Icon size={24} />
       </div>
     </div>
-
+    
     {trend && (
       <div className="flex items-center gap-1.5 mt-3 pt-3 border-t" style={{ borderColor: 'rgba(255,255,255,0.05)' }}>
         <TrendingUp size={12} style={{ color: "#00bea3" }} />
@@ -101,7 +101,7 @@ export const StatCard = ({ title, value, icon: _Icon, trend, color = "#ff6d34", 
   </Card>
 );
 
-/* â”€â”€ Toggle â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ── Toggle ──────────────────────────────────── */
 export const Toggle = ({ checked, onChange }) => (
   <button
     onClick={onChange}
@@ -115,7 +115,7 @@ export const Toggle = ({ checked, onChange }) => (
   </button>
 );
 
-/* â”€â”€ SectionHeader â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ── SectionHeader ───────────────────────────── */
 export const SectionHeader = ({ title, subtitle, action }) => (
   <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between mb-6">
     <div className="min-w-0">
@@ -126,7 +126,7 @@ export const SectionHeader = ({ title, subtitle, action }) => (
   </div>
 );
 
-/* â”€â”€ PrimaryButton â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ── PrimaryButton ───────────────────────────── */
 export const PrimaryButton = ({ children, onClick, className = "", icon: Icon }) => (
   <button
     onClick={onClick}
@@ -140,23 +140,21 @@ export const PrimaryButton = ({ children, onClick, className = "", icon: Icon })
   </button>
 );
 
-/* â”€â”€ GreenButton â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
-export const GreenButton = ({ children, onClick, className = "", icon: Icon, disabled = false, type = "button" }) => (
+/* ── GreenButton ─────────────────────────────── */
+export const GreenButton = ({ children, onClick, className = "", icon: Icon }) => (
   <button
-    type={type}
     onClick={onClick}
-    disabled={disabled}
-    className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium text-white transition ${disabled ? "opacity-50 cursor-not-allowed" : ""} ${className}`}
-    style={{ background: disabled ? "#7cbfb5" : "#00bea3" }}
-    onMouseEnter={e => { if (!disabled) e.currentTarget.style.background = "#00a38d"; }}
-    onMouseLeave={e => { if (!disabled) e.currentTarget.style.background = "#00bea3"; }}
+    className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium text-white transition ${className}`}
+    style={{ background: "#00bea3" }}
+    onMouseEnter={e => e.currentTarget.style.background = "#00a38d"}
+    onMouseLeave={e => e.currentTarget.style.background = "#00bea3"}
   >
     {Icon && <Icon size={15} />}
     {children}
   </button>
 );
 
-/* â”€â”€ Input â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ── Input ───────────────────────────────────── */
 export const Input = ({ label, icon: Icon, error, ...props }) => (
   <div className="space-y-1.5 font-sans">
     {label && <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">{label}</label>}
@@ -232,26 +230,14 @@ export const Modal = ({ isOpen, onClose, title, children, footer }) => {
       {isOpen && (
         <>
           <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            onClick={onClose}
-            className="fixed inset-0 z-[60] bg-slate-900/40 backdrop-blur-sm"
-          />
-          <div className="fixed inset-0 z-[70] flex items-center justify-center p-4 pointer-events-none">
-            <motion.div
-              ref={modalRef}
-              initial={{ opacity: 0, scale: 0.95, y: 20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              className="w-full max-w-4xl max-h-[90vh] bg-white rounded-3xl shadow-2xl overflow-hidden pointer-events-auto flex flex-col"
-              role="dialog"
-              aria-modal="true"
-              aria-label={title}
-            >
+            initial={{ opacity: 0, scale: 0.95, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.95, y: 20 }}
+            className="w-full max-w-lg bg-white rounded-3xl shadow-2xl overflow-hidden pointer-events-auto"
+          >
             <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
               <h3 className="font-bold text-lg text-slate-900">{title}</h3>
-              <button
+              <button 
                 onClick={onClose}
                 className="p-2 hover:bg-slate-100 rounded-full text-slate-400 transition-colors"
                 type="button"
@@ -259,11 +245,11 @@ export const Modal = ({ isOpen, onClose, title, children, footer }) => {
                 <X size={18} />
               </button>
             </div>
-            <div className="flex-1 overflow-y-auto p-6">
+            <div className="p-6">
               {children}
             </div>
             {footer && (
-              <div className="shrink-0 px-6 py-4 bg-slate-50 border-t border-slate-100 flex justify-end gap-3">
+              <div className="px-6 py-4 bg-slate-50 border-t border-slate-100 flex justify-end gap-3">
                 {footer}
               </div>
             )}

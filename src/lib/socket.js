@@ -1,25 +1,13 @@
+// ════════════════════════════════════════════════════════════
+//  Socket.io client with auth + auto-reconnect
+// ════════════════════════════════════════════════════════════
 import { io } from 'socket.io-client';
 
 const SOCKET_URL = import.meta.env.VITE_SOCKET_URL || '';
 
+const SOCKET_URL = import.meta.env.VITE_SOCKET_URL || '';
+
 let socket = null;
-let activeToken = null;
-
-const SOCKET_URL =
-  import.meta.env.VITE_SOCKET_URL ||
-  (typeof window !== 'undefined' ? window.location.origin : '');
-
-function attachDebugListeners(instance) {
-  instance.on('connect', () => {
-    console.info('[socket] connected', instance.id);
-  });
-  instance.on('disconnect', (reason) => {
-    console.warn('[socket] disconnected:', reason);
-  });
-  instance.on('connect_error', (err) => {
-    console.warn('[socket] connect_error:', err.message);
-  });
-}
 
 export function connectSocket(token) {
   if (socket?.connected) return socket;
@@ -40,7 +28,7 @@ export function connectSocket(token) {
   socket = io(SOCKET_URL || undefined, {
     path: '/socket.io',
     transports: ['websocket', 'polling'],
-    auth: token ? { token } : undefined,
+    auth: { token },
     withCredentials: true,
     reconnection: true,
     reconnectionDelay: 1000,
@@ -48,17 +36,24 @@ export function connectSocket(token) {
     reconnectionAttempts: Infinity,
   });
 
-  attachDebugListeners(socket);
+  socket.on('connect', () => {
+    console.info('[socket] connected', socket.id);
+  });
+  socket.on('disconnect', (reason) => {
+    console.warn('[socket] disconnected:', reason);
+  });
+  socket.on('connect_error', (err) => {
+    console.warn('[socket] connect_error:', err.message);
+  });
 
   return socket;
 }
 
 export function disconnectSocket() {
-  if (!socket) return;
-  socket.removeAllListeners();
-  socket.disconnect();
-  socket = null;
-  activeToken = null;
+  if (socket) {
+    socket.disconnect();
+    socket = null;
+  }
 }
 
 export function getSocket() {
