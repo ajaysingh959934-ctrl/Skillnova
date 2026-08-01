@@ -45,6 +45,7 @@ import userRoutes from './routes/users.routes.js';
 import apiRoutes from './routes/api.routes.js';
 import kbRoutes from './routes/kb.routes.js';
 import featuresRoutes, { publicApi as publicFeaturesRoutes } from './routes/features.routes.js';
+import phase1Routes from './routes/roadmap.routes.js';
 import { etagMiddleware } from './utils/cache.js';
 import { requestId } from './middleware/requestId.js';
 import resumeImportRoutes from './resume-import/resumeImport.routes.js';
@@ -236,6 +237,8 @@ app.use('/api/v1/users', userRoutes);
 app.use('/api/v1/kb', kbRoutes);
 app.use('/api/v1/resume-import', resumeImportRoutes);
 app.use('/api/v1', csrfProtection, apiRoutes);
+// Phase 1: Learning Roadmap, Achievement Badges, Internship Completion Tracker
+app.use('/api/v1', csrfProtection, phase1Routes);
 
 // ── 404 ────────────────────────────────────────────────────
 app.use((req, _res, next) => {
