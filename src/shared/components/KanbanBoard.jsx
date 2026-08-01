@@ -744,6 +744,9 @@ const checkDeadlineAlerts = () => {
   }
 };
   useEffect(() => {
+    fetch();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [projectId]);
     fetchTasks();
   }, [fetchTasks]);
 

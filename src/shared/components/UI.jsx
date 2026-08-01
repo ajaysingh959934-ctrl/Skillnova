@@ -4,10 +4,37 @@
 
 import { motion, AnimatePresence } from "framer-motion";
 import { TrendingUp, X, CheckSquare } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+
+// UptoSkills Brand Colors
+export const BRAND = {
+  orange:    "#ff6d34", // Main Brand Color
+  green:     "#00bea3",
+  dark:      "#2D3436",
+  orangeLight: "#fff3ee",
+  greenLight:  "#e6faf8",
+};
 
 const MotionDiv = motion.div;
 
+/* ── Avatar ─────────────────────────────────── */
+export const Avatar = ({ initials, size = "md" }) => {
+  const sizes = {
+    sm: "w-7 h-7 text-xs",
+    md: "w-9 h-9 text-sm",
+    lg: "w-12 h-12 text-base",
+    xl: "w-20 h-20 text-2xl",
+  };
+  return (
+    <div
+      className={`${sizes[size]} rounded-full flex items-center justify-center font-bold text-white flex-shrink-0`}
+      style={{ background: "linear-gradient(135deg, #ff6d34, #00bea3)" }}
+    >
+      {initials}
+    </div>
+  );
+};
+
+/* ── Badge ───────────────────────────────────── */
 /* â”€â”€ Badge â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 export const Badge = ({ children, variant = "default" }) => {
   const variants = {
@@ -35,13 +62,13 @@ export const Card = ({ children, className = "", hover = false, onClick, delay =
     animate={{ opacity: 1, y: 0 }}
     transition={{ duration: 0.3, delay }}
     onClick={onClick}
-    whileHover={hover ? { y: -4, boxShadow: "0 12px 28px -6px rgba(255,109,52,0.18)" } : {}}
+    whileHover={hover ? { y: -5, boxShadow: "0 10px 25px -5px rgba(255,109,52,0.15)" } : {}}
     className={`rounded-2xl ${className} ${hover ? 'cursor-pointer' : ''}`}
     style={{
       background: "var(--card)",
       border: "1px solid var(--border)",
       boxShadow: "var(--card-shadow)",
-      transition: "transform 0.22s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.22s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.22s ease",
+      transition: "transform 0.2s ease, box-shadow 0.2s ease",
     }}
   >
     {children}
@@ -150,6 +177,25 @@ export const Input = ({ label, icon: Icon, error, ...props }) => (
   </div>
 );
 
+/* ── Modal ────────────────────────────────────── */
+export const Modal = ({ isOpen, onClose, title, children, footer }) => (
+  <AnimatePresence>
+    {isOpen && (
+      <>
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          onClick={onClose}
+          className="fixed inset-0 z-[60] bg-slate-900/40 backdrop-blur-sm"
+        />
+        <div className="fixed inset-0 z-[70] flex items-center justify-center p-4 pointer-events-none">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.95, y: 20 }}
+            className="w-full max-w-lg bg-white rounded-3xl shadow-2xl overflow-hidden pointer-events-auto"
+          >
 /* â”€â”€ Modal â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 export const Modal = ({ isOpen, onClose, title, children, footer }) => {
   const modalRef = useRef(null);
@@ -226,6 +272,7 @@ export const Modal = ({ isOpen, onClose, title, children, footer }) => {
       </>
     )}
   </AnimatePresence>
+);
   );
 };
 

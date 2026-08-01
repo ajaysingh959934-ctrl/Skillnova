@@ -1,3 +1,10 @@
+// ════════════════════════════════════════════════════════════
+//  useNotifications — fetches + subscribes via socket
+// ════════════════════════════════════════════════════════════
+import { useEffect, useState, useCallback } from 'react';
+import { useAuthStore } from '../../lib/auth';
+import api from '../../lib/api';
+import { getSocket } from '../../lib/socket';
 import { useEffect, useState, useCallback } from 'react';
 import { connectSocket } from '../../lib/socket';
 import { useAuthStore } from '../../lib/auth';
@@ -41,6 +48,10 @@ export function useNotifications() {
   }, []);
 
   useEffect(() => {
+    if (!user) return undefined;
+    fetchAll();
+    const socket = getSocket();
+    if (!socket) return undefined;
     if (!userId) return undefined;
 
     const loadTimer = window.setTimeout(() => {
@@ -53,6 +64,10 @@ export function useNotifications() {
       setItems((arr) => [n, ...arr].slice(0, 50));
       setUnreadCount((c) => c + 1);
     };
+    socket.on('notification', onNotification);
+    return () => socket.off('notification', onNotification);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user]);
 
     const onBroadcast = (n) => {
       setBroadcasts((arr) => [n, ...arr].slice(0, 50));
@@ -68,7 +83,7 @@ export function useNotifications() {
     };
   }, [fetchAll, token, userId]);
 
-  return { items, unreadCount, broadcasts, fetchAll, markRead, markAllRead };
+  return { items, unreadCount, fetchAll, markRead, markAllRead };
 }
 
 export default useNotifications;

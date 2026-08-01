@@ -9,6 +9,7 @@ import * as googleAuth from '../controllers/googleAuth.controller.js';
 import { authenticate, requireAuth } from '../middleware/auth.js';
 import { validate, schemas } from '../middleware/validate.js';
 import { config } from '../config/index.js';
+import { forgotPassword, resetPassword } from '../controllers/auth.controller.js';
 
 const router = Router();
 
@@ -139,6 +140,9 @@ router.post(
 router.get('/google/status', googleAuth.status);
 router.get('/google', googleAuth.start);
 router.get('/google/callback', googleAuth.callback);
+// ── Password Reset ─────────────────────────────────────────
+router.post('/forgot-password', auth.forgotPassword);
+router.post('/reset-password', auth.resetPassword);
 // Demo accounts (development only)
 router.get('/demo-accounts', (req, res) => {
   res.json({

@@ -1,5 +1,6 @@
 import { io } from 'socket.io-client';
-import { APP_CONSTANTS } from '../shared/config/constants';
+
+const SOCKET_URL = import.meta.env.VITE_SOCKET_URL || '';
 
 let socket = null;
 let activeToken = null;
@@ -21,6 +22,9 @@ function attachDebugListeners(instance) {
 }
 
 export function connectSocket(token) {
+  if (socket?.connected) return socket;
+  if (socket) socket.disconnect();
+  socket = io(SOCKET_URL || '/', {
   if (socket) {
     if (token && token !== activeToken) {
       socket.removeAllListeners();
@@ -39,8 +43,8 @@ export function connectSocket(token) {
     auth: token ? { token } : undefined,
     withCredentials: true,
     reconnection: true,
-    reconnectionDelay: APP_CONSTANTS.SOCKET_RECONNECT_DELAY,
-    reconnectionDelayMax: APP_CONSTANTS.SOCKET_RECONNECT_DELAY_MAX,
+    reconnectionDelay: 1000,
+    reconnectionDelayMax: 10000,
     reconnectionAttempts: Infinity,
   });
 
@@ -60,3 +64,5 @@ export function disconnectSocket() {
 export function getSocket() {
   return socket;
 }
+
+export default { connectSocket, disconnectSocket, getSocket };

@@ -1,3 +1,12 @@
+// ════════════════════════════════════════════════════════════
+//  USER — pages/Reports.jsx (API-driven)
+// ════════════════════════════════════════════════════════════
+import { useEffect, useState } from 'react';
+import { Search, FileText, Download, Upload, Loader2, X } from 'lucide-react';
+import { Card, Badge, SectionHeader, Input, GreenButton, Modal } from '../../shared/components/UI';
+import api from '../../lib/api';
+import notify from '../../lib/toast';
+import { formatDate } from '../../lib/utils';
 
 // User - pages/Reports.jsx
 import { useEffect, useMemo, useState } from 'react';
@@ -87,6 +96,11 @@ if (reportList.length && !selectedReport) {
     }
   };
 
+  useEffect(() => { fetch(); }, []);
+
+  const filtered = reports.filter((r) =>
+    !search || r.title.toLowerCase().includes(search.toLowerCase())
+  );
   useEffect(() => {
     load();
   }, []);
