@@ -66,6 +66,10 @@ const Dashboard = ({ onNavigate }) => {
         setMyReports(Array.isArray(reportsPayload) && reportsPayload.length > 0 ? reportsPayload : sampleReports);
         setMyTasks(Array.isArray(tasksPayload) && tasksPayload.length > 0 ? tasksPayload : sampleTasks);
         setAttendance(a.data || { rate: 90 });
+        setStats(s.data);
+        setMyReports(r.data.items);
+        setMyTasks(t.data.items);
+        setAttendance(a.data);
       } catch {
         /* ignore */
       } finally {
@@ -151,6 +155,15 @@ const Dashboard = ({ onNavigate }) => {
               <div key={label} className="bg-white/15 backdrop-blur-md rounded-2xl px-6 py-4 border border-white/10 shadow-sm">
                 <p className="font-black text-xl text-slate-900">{value}</p>
                 <p className="text-[10px] font-bold uppercase tracking-wider mt-1" style={{ color }}>{label}</p>
+          <div className="grid grid-cols-3 gap-3 mt-6 max-w-xl">
+            {[
+              [stats?.reviewed ?? 0, 'Reports'],
+              [`${attendance?.rate ?? 0}%`, 'Attendance'],
+              [`${user?.rating?.toFixed(1) ?? '—'}`, 'Score'],
+            ].map(([v, l]) => (
+              <div key={l} className="bg-white/5 backdrop-blur-md rounded-2xl px-6 py-4 border border-white/10">
+                <p className="font-black text-xl text-white">{v}</p>
+                <p className="text-[10px] font-bold uppercase tracking-wider mt-1" style={{ color: '#ff6d34' }}>{l}</p>
               </div>
             ))}
           </div>
@@ -208,6 +221,7 @@ const Dashboard = ({ onNavigate }) => {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 sm:gap-4">
         <Card className="p-5">
           <h3 className="text-sm font-semibold mb-4" style={{ color: 'var(--text)' }}>My Tasks by Status</h3>
           {myTasksByStatus.length === 0 ? (
