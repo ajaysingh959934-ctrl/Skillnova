@@ -32,6 +32,11 @@ api.interceptors.request.use((config) => {
       }
     }
   } catch { /* ignore */ }
+  const csrf = getCookie('sn_csrf');
+  const token = getStoredAccessToken();
+  if (token && !config.headers.Authorization) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
 
   // Attach CSRF token for state-changing requests
   const csrf = getCookie('sn_csrf');

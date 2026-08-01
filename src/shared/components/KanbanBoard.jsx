@@ -189,6 +189,8 @@ const KanbanBoard = ({ projectId, canEdit = true }) => {
     fetch();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [projectId]);
+    fetchTasks();
+  }, [fetchTasks]);
 
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 6 } }));
 

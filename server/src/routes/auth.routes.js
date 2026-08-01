@@ -8,6 +8,7 @@ import * as auth from '../controllers/auth.controller.js';
 import { authenticate, requireAuth } from '../middleware/auth.js';
 import { validate, schemas } from '../middleware/validate.js';
 import { config } from '../config/index.js';
+import { forgotPassword, resetPassword } from '../controllers/auth.controller.js';
 
 const router = Router();
 
@@ -44,5 +45,24 @@ router.post(
   validate(z.object({ code: z.string().trim().length(6) })),
   auth.enableTotp
 );
+
+// ── Google OAuth ─────────────────────────────────────────
+router.get('/google/status', googleAuth.status);
+router.get('/google', googleAuth.start);
+router.get('/google/callback', googleAuth.callback);
+// ── Password Reset ─────────────────────────────────────────
+router.post('/forgot-password', auth.forgotPassword);
+router.post('/reset-password', auth.resetPassword);
+// Demo accounts (development only)
+router.get('/demo-accounts', (req, res) => {
+  res.json({
+    accounts: [
+      { label: 'Senior Team Leader', email: 'superadmin@skillnova.com', pwd: 'SuperAdmin#2026', color: '#7C3AED' },
+      { label: 'Team Leader',        email: 'admin@skillnova.com',      pwd: 'Admin#2026',      color: '#ff6d34' },
+      { label: 'Captain',            email: 'mentor@skillnova.com',     pwd: 'Mentor#2026',     color: '#7C3AED' },
+      { label: 'Intern',             email: 'rahul@skillnova.com',      pwd: 'User#2026',       color: '#00bea3' },
+    ],
+  });
+});
 
 export default router;

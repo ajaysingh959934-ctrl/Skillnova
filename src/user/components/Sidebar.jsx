@@ -6,6 +6,7 @@ import {
   LayoutDashboard, BookOpen, MessageSquare, FileText,
   CalendarCheck, Bot, Megaphone, BarChart2, User, Settings, Activity,
   LayoutGrid, Calendar, Folder, Bell, Download, ChevronRight, ChevronLeft, LogOut,
+  LayoutGrid, Calendar, Folder, Bell, Download, ChevronRight, ChevronLeft, LogOut, Target, Trophy,
 } from 'lucide-react';
 import { useAuthStore } from '../../lib/auth';
 
