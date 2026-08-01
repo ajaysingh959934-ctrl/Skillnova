@@ -20,6 +20,7 @@ import apiRoutes from './routes/api.routes.js';
 import kbRoutes from './routes/kb.routes.js';
 import featuresRoutes, { publicApi as publicFeaturesRoutes } from './routes/features.routes.js';
 import skillGapRoutes from './routes/skillGap.routes.js';
+import flagRoutes from './routes/flag.routes.js';
 import { etagMiddleware } from './utils/cache.js';
 import { requestId } from './middleware/requestId.js';
 import { bodySizeTracker } from './utils/metrics.js';
@@ -104,9 +105,14 @@ app.use(etagMiddleware());
 // Response time tracking header
 app.use((_req, res, next) => {
   const start = Date.now();
+
+  res.setHeader('X-Response-Time-Start', start.toString());
+
   res.on('finish', () => {
-    res.setHeader('X-Response-Time', `${Date.now() - start}ms`);
+    const duration = Date.now() - start;
+    console.log(`${_req.method} ${_req.originalUrl} - ${duration}ms`);
   });
+
   next();
 });
 
@@ -181,7 +187,7 @@ app.use('/api/v1/auth', authRoutes);
 // Public file downloads (via signed token) — no auth required
 app.use('/api/v1', publicFeaturesRoutes);
 // Authenticated features (uploads, webhooks, exports, meetings)
-app.use('/api/v1', featuresRoutes);
+app.use('/api/v1/flags', flagRoutes);
 app.use('/api/v1/users', userRoutes);
 app.use('/api/v1/kb', kbRoutes);
 app.use('/api/v1/skill-gap', skillGapRoutes);
@@ -201,6 +207,7 @@ app.use((err, req, res, _next) => {
       details: err.details,
     });
   }
+  app.use('/api/flags', flagRoutes);
 
   // CORS error from upstream
   if (err.message?.startsWith('CORS')) {

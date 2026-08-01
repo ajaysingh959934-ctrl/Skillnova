@@ -1,6 +1,6 @@
-// ══════════════════════════════════════════════
-//  SHARED — UI.jsx  (UptoSkills Branded)
-// ══════════════════════════════════════════════
+﻿// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+//  SHARED â€” UI.jsx  (UptoSkills Branded)
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 
 import { motion, AnimatePresence } from "framer-motion";
 import { TrendingUp, X, CheckSquare } from "lucide-react";
@@ -35,6 +35,7 @@ export const Avatar = ({ initials, size = "md" }) => {
 };
 
 /* ── Badge ───────────────────────────────────── */
+/* â”€â”€ Badge â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 export const Badge = ({ children, variant = "default" }) => {
   const variants = {
     default: { background: "var(--badge-default-bg)", color: "var(--badge-default-fg)", border: "1px solid var(--badge-default-border)" },
@@ -54,7 +55,7 @@ export const Badge = ({ children, variant = "default" }) => {
   );
 };
 
-/* ── Card ────────────────────────────────────── */
+/* â”€â”€ Card â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 export const Card = ({ children, className = "", hover = false, onClick, delay = 0 }) => (
   <MotionDiv
     initial={{ opacity: 0, y: 20 }}
@@ -74,7 +75,7 @@ export const Card = ({ children, className = "", hover = false, onClick, delay =
   </MotionDiv>
 );
 
-/* ── StatCard (Enhanced) ─────────────────────── */
+/* â”€â”€ StatCard (Enhanced) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 export const StatCard = ({ title, value, icon: _Icon, trend, color = "#ff6d34", subtitle, delay = 0 }) => (
   <Card hover className="p-6 transition-all duration-300" delay={delay}>
     <div className="flex items-center justify-between">
@@ -89,7 +90,7 @@ export const StatCard = ({ title, value, icon: _Icon, trend, color = "#ff6d34", 
         <_Icon size={24} />
       </div>
     </div>
-    
+
     {trend && (
       <div className="flex items-center gap-1.5 mt-3 pt-3 border-t" style={{ borderColor: 'rgba(255,255,255,0.05)' }}>
         <TrendingUp size={12} style={{ color: "#00bea3" }} />
@@ -100,7 +101,7 @@ export const StatCard = ({ title, value, icon: _Icon, trend, color = "#ff6d34", 
   </Card>
 );
 
-/* ── Toggle ──────────────────────────────────── */
+/* â”€â”€ Toggle â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 export const Toggle = ({ checked, onChange }) => (
   <button
     onClick={onChange}
@@ -114,7 +115,7 @@ export const Toggle = ({ checked, onChange }) => (
   </button>
 );
 
-/* ── SectionHeader ───────────────────────────── */
+/* â”€â”€ SectionHeader â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 export const SectionHeader = ({ title, subtitle, action }) => (
   <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between mb-6">
     <div className="min-w-0">
@@ -125,7 +126,7 @@ export const SectionHeader = ({ title, subtitle, action }) => (
   </div>
 );
 
-/* ── PrimaryButton ───────────────────────────── */
+/* â”€â”€ PrimaryButton â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 export const PrimaryButton = ({ children, onClick, className = "", icon: Icon }) => (
   <button
     onClick={onClick}
@@ -139,21 +140,23 @@ export const PrimaryButton = ({ children, onClick, className = "", icon: Icon })
   </button>
 );
 
-/* ── GreenButton ─────────────────────────────── */
-export const GreenButton = ({ children, onClick, className = "", icon: Icon }) => (
+/* â”€â”€ GreenButton â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+export const GreenButton = ({ children, onClick, className = "", icon: Icon, disabled = false, type = "button" }) => (
   <button
+    type={type}
     onClick={onClick}
-    className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium text-white transition ${className}`}
-    style={{ background: "#00bea3" }}
-    onMouseEnter={e => e.currentTarget.style.background = "#00a38d"}
-    onMouseLeave={e => e.currentTarget.style.background = "#00bea3"}
+    disabled={disabled}
+    className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium text-white transition ${disabled ? "opacity-50 cursor-not-allowed" : ""} ${className}`}
+    style={{ background: disabled ? "#7cbfb5" : "#00bea3" }}
+    onMouseEnter={e => { if (!disabled) e.currentTarget.style.background = "#00a38d"; }}
+    onMouseLeave={e => { if (!disabled) e.currentTarget.style.background = "#00bea3"; }}
   >
     {Icon && <Icon size={15} />}
     {children}
   </button>
 );
 
-/* ── Input ───────────────────────────────────── */
+/* â”€â”€ Input â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 export const Input = ({ label, icon: Icon, error, ...props }) => (
   <div className="space-y-1.5 font-sans">
     {label && <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">{label}</label>}
@@ -193,9 +196,62 @@ export const Modal = ({ isOpen, onClose, title, children, footer }) => (
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
             className="w-full max-w-lg bg-white rounded-3xl shadow-2xl overflow-hidden pointer-events-auto"
           >
+/* â”€â”€ Modal â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+export const Modal = ({ isOpen, onClose, title, children, footer }) => {
+  const modalRef = useRef(null);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    const trapFocus = (e) => {
+      if (e.key !== 'Tab') return;
+      const modal = modalRef.current;
+      if (!modal) return;
+      const focusable = modal.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+      if (focusable.length === 0) return;
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault();
+        first.focus();
+      }
+    };
+    const handleEscape = (e) => { if (e.key === 'Escape') onClose(); };
+    document.addEventListener('keydown', trapFocus);
+    document.addEventListener('keydown', handleEscape);
+    return () => {
+      document.removeEventListener('keydown', trapFocus);
+      document.removeEventListener('keydown', handleEscape);
+    };
+  }, [isOpen, onClose]);
+
+  return (
+    <AnimatePresence>
+      {isOpen && (
+        <>
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={onClose}
+            className="fixed inset-0 z-[60] bg-slate-900/40 backdrop-blur-sm"
+          />
+          <div className="fixed inset-0 z-[70] flex items-center justify-center p-4 pointer-events-none">
+            <motion.div
+              ref={modalRef}
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              className="w-full max-w-4xl max-h-[90vh] bg-white rounded-3xl shadow-2xl overflow-hidden pointer-events-auto flex flex-col"
+              role="dialog"
+              aria-modal="true"
+              aria-label={title}
+            >
             <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
               <h3 className="font-bold text-lg text-slate-900">{title}</h3>
-              <button 
+              <button
                 onClick={onClose}
                 className="p-2 hover:bg-slate-100 rounded-full text-slate-400 transition-colors"
                 type="button"
@@ -203,11 +259,11 @@ export const Modal = ({ isOpen, onClose, title, children, footer }) => (
                 <X size={18} />
               </button>
             </div>
-            <div className="p-6">
+            <div className="flex-1 overflow-y-auto p-6">
               {children}
             </div>
             {footer && (
-              <div className="px-6 py-4 bg-slate-50 border-t border-slate-100 flex justify-end gap-3">
+              <div className="shrink-0 px-6 py-4 bg-slate-50 border-t border-slate-100 flex justify-end gap-3">
                 {footer}
               </div>
             )}
@@ -217,3 +273,36 @@ export const Modal = ({ isOpen, onClose, title, children, footer }) => (
     )}
   </AnimatePresence>
 );
+  );
+};
+
+/* â”€â”€ Tooltip â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+export const Tooltip = ({ children, content, side = 'top' }) => {
+  const [show, setShow] = useState(false);
+  const positions = {
+    top: 'bottom-full left-1/2 -translate-x-1/2 mb-2',
+    bottom: 'top-full left-1/2 -translate-x-1/2 mt-2',
+    left: 'right-full top-1/2 -translate-y-1/2 mr-2',
+    right: 'left-full top-1/2 -translate-y-1/2 ml-2',
+  };
+
+  if (!content) return children;
+
+  return (
+    <span className="relative inline-flex"
+      onMouseEnter={() => setShow(true)}
+      onMouseLeave={() => setShow(false)}
+      onFocus={() => setShow(true)}
+      onBlur={() => setShow(false)}>
+      {children}
+      {show && (
+        <span className={`absolute z-50 px-2.5 py-1.5 text-xs font-medium rounded-lg shadow-lg whitespace-nowrap pointer-events-none ${positions[side]}`}
+          style={{ background: '#1f2937', color: '#f9fafb' }}
+          role="tooltip">
+          {content}
+        </span>
+      )}
+    </span>
+  );
+};
+
