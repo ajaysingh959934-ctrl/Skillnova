@@ -43,5 +43,17 @@ export const upload = multer({
   },
 });
 
+// ── Resume-specific upload (PDF only, 5 MB) ─────────────
+export const resumeUpload = multer({
+  storage,
+  limits: { fileSize: 5 * 1024 * 1024 }, // 5 MB
+  fileFilter: (_req, file, cb) => {
+    if (file.mimetype !== 'application/pdf') {
+      return cb(new Error('Only PDF files are accepted for resume parsing'));
+    }
+    cb(null, true);
+  },
+});
+
 export const UPLOAD_DIR_PATH = UPLOAD_DIR;
 export const UPLOAD_MAX_BYTES = 25 * 1024 * 1024;
