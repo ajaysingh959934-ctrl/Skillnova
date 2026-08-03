@@ -9,7 +9,7 @@ import { useAuthStore } from './lib/auth';
 import LoaderScreen from './shared/components/LoaderScreen';
 
 const AuthGate = () => {
-  const { step, user, hydrate } = useAuthStore();
+  const { step, user, hydrate, otpMode } = useAuthStore();
 
   useEffect(() => {
     if (!user && step === 'login') hydrate();
@@ -20,7 +20,7 @@ const AuthGate = () => {
   if (step === 'login') return <Login />;
 
   if (step === 'otp') {
-    if (user?.role === 'INTERN') return <User2FA />;
+    if (otpMode === 'user' || user?.role === 'INTERN') return <User2FA />;
     return <AdminOTP />;
   }
 

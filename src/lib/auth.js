@@ -44,6 +44,7 @@ export const useAuthStore = create((set, get) => ({
   step: 'login', // 'login' | 'otp'
   challengeToken: null,
   devCode: null,
+  otpMode: 'admin',
   loading: false,
   error: null,
   hydrated: false,
@@ -88,9 +89,10 @@ export const useAuthStore = create((set, get) => ({
           challengeToken: data.challengeToken,
           devCode: data.devCode ?? null,
           contactHint: data.contactHint,
+          otpMode: data.otpMode ?? (data.user?.role === 'INTERN' ? 'user' : 'admin'),
           loading: false,
         });
-        return { step: 'otp' };
+        return { step: 'otp', otpMode: data.otpMode ?? (data.user?.role === 'INTERN' ? 'user' : 'admin') };
       }
       set({
         user: data.user,
@@ -137,11 +139,11 @@ export const useAuthStore = create((set, get) => ({
   },
 
   reset: () => {
-    set({ user: null, accessToken: null, permissions: [], step: 'login', challengeToken: null, error: null });
+    set({ user: null, accessToken: null, permissions: [], step: 'login', challengeToken: null, error: null, otpMode: 'admin' });
     persist(get());
   },
 
-  goBackToLogin: () => set({ step: 'login', error: null, challengeToken: null, devCode: null }),
+  goBackToLogin: () => set({ step: 'login', error: null, challengeToken: null, devCode: null, otpMode: 'admin' }),
 
   hasPermission: (perm) => get().permissions.includes(perm),
   hasRole: (...roles) => roles.includes(get().user?.role),

@@ -20,6 +20,26 @@ const FIELDS = [
     validate: (v) => v && !/^https?:\/\/.+/.test(v) ? 'Enter a valid URL starting with https://' : '' },
 ];
 
+const formatDateValue = (value) => {
+  if (!value) return '';
+
+  let date;
+  if (value instanceof Date) {
+    date = value;
+  } else if (typeof value === 'string') {
+    const trimmed = value.trim();
+    if (!trimmed) return '';
+    date = new Date(trimmed);
+  } else if (typeof value === 'number') {
+    date = new Date(value);
+  } else {
+    return '';
+  }
+
+  if (Number.isNaN(date.getTime())) return '';
+  return date.toISOString().slice(0, 10);
+};
+
 const FormField = ({ field, value, editing, onChange, touched, error }) => {
   const uid = useId();
   const [focused, setFocused] = useState(false);
@@ -46,7 +66,7 @@ const FormField = ({ field, value, editing, onChange, touched, error }) => {
         {field.label}
         {field.required && editing && <span style={{ color: '#ff6d34' }}> *</span>}
       </label>
-      <input id={uid} type={field.type} value={value ? new Date(value).toISOString?.().slice(0, 10) === value.slice(0, 10) && field.type === 'date' ? value : value : ''} disabled={!editing || field.disabled}
+      <input id={uid} type={field.type} value={field.type === 'date' ? formatDateValue(value) : value ?? ''} disabled={!editing || field.disabled}
         onChange={onChange}
         onFocus={() => setFocused(true)} onBlur={() => setFocused(false)}
         maxLength={field.maxLen}
@@ -76,7 +96,7 @@ const Profile = () => {
       department: user.department ?? '',
       college: user.college ?? '',
       yearOfStudy: user.yearOfStudy ?? '',
-      dateOfBirth: user.dateOfBirth ? new Date(user.dateOfBirth).toISOString().slice(0, 10) : '',
+      dateOfBirth: formatDateValue(user.dateOfBirth),
       linkedinUrl: user.linkedinUrl ?? '',
       skills: user.skills ?? '',
     });

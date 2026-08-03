@@ -21,19 +21,19 @@ INTERN).
 
 ## Stack
 
-| Concern | Choice |
-| --- | --- |
-| API | FastAPI + Uvicorn |
-| Streaming | sse-starlette |
-| Agent | LangGraph |
-| LLM | Gemini / Groq / DeepSeek (circuit-broken) |
-| Embeddings | sentence-transformers (all-MiniLM-L6-v2) |
-| Vector store | FAISS (CPU) |
-| Web search | Tavily → DuckDuckGo |
-| Cache | In-memory or Redis |
-| DB | SQLAlchemy (SQLite default, Postgres optional) |
-| Tests | pytest |
-| Lint | ruff |
+| Concern      | Choice                                         |
+| ------------ | ---------------------------------------------- |
+| API          | FastAPI + Uvicorn                              |
+| Streaming    | sse-starlette                                  |
+| Agent        | LangGraph                                      |
+| LLM          | Gemini / Groq / DeepSeek (circuit-broken)      |
+| Embeddings   | sentence-transformers (all-MiniLM-L6-v2)       |
+| Vector store | FAISS (CPU)                                    |
+| Web search   | Tavily → DuckDuckGo                            |
+| Cache        | In-memory or Redis                             |
+| DB           | SQLAlchemy (SQLite default, Postgres optional) |
+| Tests        | pytest                                         |
+| Lint         | ruff                                           |
 
 ---
 
@@ -54,13 +54,13 @@ python main.py                # http://localhost:8000/docs
 
 ## Endpoints
 
-| Method | Path | Description |
-| --- | --- | --- |
-| GET | `/` | Service status |
-| GET | `/api/aiassistant/session` | Create a session id |
-| GET | `/api/aiassistant/health` | Liveness + boot status |
-| POST | `/api/aiassistant/chat` | Synchronous chat |
-| POST | `/api/aiassistant/chat/stream` | Server-Sent Events stream |
+| Method | Path                           | Description               |
+| ------ | ------------------------------ | ------------------------- |
+| GET    | `/`                            | Service status            |
+| GET    | `/api/aiassistant/session`     | Create a session id       |
+| GET    | `/api/aiassistant/health`      | Liveness + boot status    |
+| POST   | `/api/aiassistant/chat`        | Synchronous chat          |
+| POST   | `/api/aiassistant/chat/stream` | Server-Sent Events stream |
 
 ### `POST /api/aiassistant/chat`
 
@@ -115,7 +115,6 @@ topic: Policies
 importance: high
 last_updated: 2026-06-01
 ---
-
 Body of the document goes here …
 ```
 

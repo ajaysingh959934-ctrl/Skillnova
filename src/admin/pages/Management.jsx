@@ -4,6 +4,7 @@
 import { useEffect, useState } from 'react';
 import { Search, Loader2, ClipboardList, Star, CheckCircle, XCircle } from 'lucide-react';
 import { Card, Badge, SectionHeader, Modal, Input } from '../../shared/components/UI';
+import UserProfileModal from '../../shared/components/UserProfileModal';
 import api from '../../lib/api';
 import notify from '../../lib/toast';
 
@@ -12,6 +13,7 @@ const Management = () => {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [modal, setModal] = useState(false);
+  const [selectedUserId, setSelectedUserId] = useState(null);
   const [form, setForm] = useState({ name: '', email: '', password: 'User#2026', department: '', role: 'INTERN' });
 
   const fetch = async () => {
@@ -82,7 +84,11 @@ const Management = () => {
             <tbody>
               {filtered.map((i) => (
                 <tr key={i.id} style={{ borderBottom: '1px solid var(--border)' }}>
-                  <td className="px-5 py-4 font-medium" style={{ color: 'var(--text)' }}>{i.name}</td>
+                  <td className="px-5 py-4 font-medium" style={{ color: 'var(--text)' }}>
+                    <button type="button" onClick={() => setSelectedUserId(i.id)} className="text-left hover:underline" style={{ color: 'var(--text)' }}>
+                      {i.name}
+                    </button>
+                  </td>
                   <td className="px-5 py-4" style={{ color: 'var(--muted)' }}>{i.department || '—'}</td>
                   <td className="px-5 py-4">
                     <span className="text-xs font-semibold px-2.5 py-1 rounded-full" style={{ background: (i.avgScore || 0) >= 7 ? 'rgba(0,190,163,0.12)' : 'rgba(245,158,11,0.12)', color: (i.avgScore || 0) >= 7 ? '#00bea3' : '#d97706' }}>
@@ -118,6 +124,8 @@ const Management = () => {
           <Input label="Initial password" type="password" value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} />
         </div>
       </Modal>
+
+      <UserProfileModal isOpen={!!selectedUserId} onClose={() => setSelectedUserId(null)} userId={selectedUserId} />
     </div>
   );
 };

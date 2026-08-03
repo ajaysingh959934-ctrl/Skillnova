@@ -40,14 +40,12 @@ const CalendarView = () => {
   while (d <= gridEnd) { days.push(d); d = addDays(d, 1); }
 
   useEffect(() => {
-    /* eslint-disable react-hooks/set-state-in-effect */
     setLoading(true);
     api.get('/meetings', { params: { from: monthStart.toISOString(), to: addDays(monthEnd, 1).toISOString() } })
       .then((r) => setMeetings(r.data.items))
       .catch(() => {})
       .finally(() => setLoading(false));
-    /* eslint-enable react-hooks/set-state-in-effect */
-  }, [currentMonth]);
+  }, [monthStart, monthEnd]);
 
   const meetingsByDay = useMemo(() => {
     const m = new Map();

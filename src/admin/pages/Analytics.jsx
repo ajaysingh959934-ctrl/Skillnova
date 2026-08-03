@@ -26,7 +26,7 @@ const SectionHeader = ({ title, subtitle }) => (
   </div>
 );
 
-const StatCard = ({ title, value, icon: Icon, color = '#ff6d34', subtitle }) => (
+const StatCard = ({ title, value, icon: _Icon, color = '#ff6d34', subtitle }) => (
   <Card className="p-6 transition-all duration-300">
     <div className="flex items-center justify-between">
       <div className="space-y-1">
@@ -37,7 +37,7 @@ const StatCard = ({ title, value, icon: Icon, color = '#ff6d34', subtitle }) => 
         </div>
       </div>
       <div className="p-2.5 rounded-xl" style={{ color }}>
-        <Icon size={24} />
+        <_Icon size={24} />
       </div>
     </div>
     <div className="flex items-center gap-1.5 mt-3 pt-3 border-t" style={{ borderColor: 'rgba(255,255,255,0.05)' }}>
